@@ -5,3 +5,5 @@ out/
 .idea/
 *.iws
 Thumbs.db
+*.iml
+local.properties
