@@ -29,6 +29,9 @@ public class ReserveWorker {
         loginPageQueryString = new HashMap<String, String>();
     }
 
+    public OkHttpClient getOkHttpClient() {
+        return okHttpClient;
+    }
 
     public static Map<String, String> extractQueryString(String url) {
         String param = url.substring(url.indexOf("?") + 1);

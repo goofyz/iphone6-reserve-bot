@@ -9,7 +9,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp.OkHttpUrlLoader;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
+import java.io.InputStream;
 import java.util.GregorianCalendar;
 
 public class MainActivity extends Activity {
@@ -80,7 +87,27 @@ public class MainActivity extends Activity {
         tvMsg.setText("Getting captcha");
         ImageView captchaImageView = (ImageView)findViewById(R.id.iv_captcha);
         String imageUrl = "https://signin.apple.com/IDMSWebAuth/imageCaptcha/942#" + GregorianCalendar.getInstance().getTime().getTime();
-        Glide.with(MainActivity.this).load(imageUrl).into(captchaImageView);
+        Glide.get(MainActivity.this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(reserveWorker.getOkHttpClient()));
+        Glide.with(MainActivity.this).load(imageUrl).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<String, GlideDrawable>() {
+            @Override
+            public boolean onException(Exception e, String s, Target<GlideDrawable> glideDrawableTarget, boolean b) {
+                tvMsg.setText("Error in loading captcha");
+                Log.d(TAG, "Error in loading captcha");
+                if(e != null){
+                    Log.d(TAG, "Exception is " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                }
+                else{
+                    Log.d(TAG, "Exception is null");
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GlideDrawable glideDrawable, String s, Target<GlideDrawable> glideDrawableTarget, boolean b, boolean b2) {
+                tvMsg.setText("Got Captcha, please enter the string. ");
+                return false;
+            }
+        }).into(captchaImageView);
     }
 
 
