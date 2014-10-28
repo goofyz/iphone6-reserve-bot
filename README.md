@@ -5,6 +5,6 @@ Related tutorial is available at http://blog.30sparks.com/iphone-reserve-bot-par
 
 To run, please download the following librarys to `libs/` folder:
 
-* [Glide](https://github.com/bumptech/glide)
 * [Okhttp](http://square.github.io/okhttp)
-* [Android Support Library v4](http://developer.android.com/tools/support-library/index.html)
+* [Glide](https://github.com/bumptech/glide), together with okHttp integration library
+* [Android Support Library v4](http://developer.android.com/tools/support-library/index.html) (required by `Glide`)
