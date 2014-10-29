@@ -1,8 +1,11 @@
 package com.thirtysparks.apple.bot;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -47,8 +50,12 @@ public class MainActivity extends Activity {
         goFrontPage();
     }
 
+    private void addLog(String s){
+        tvMsg.setText(s + "\n" + tvMsg.getText());
+    }
+
     private void goFrontPage(){
-        tvMsg.setText("Visiting front page");
+        addLog("Visiting front page");
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... voids) {
@@ -70,10 +77,10 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "Result url is " + resultString);
                 boolean isLogin = (resultString.startsWith("https://signin.apple.com/IDMSWebAuth/"));
                 if(isLogin){
-                    tvMsg.setText("Success. Redirected to login page");
+                    addLog("Success. Redirected to login page");
                 }
                 else{
-                    tvMsg.setText("Failed");
+                    addLog("Failed");
                 }
 
                 goGetCaptcha();
@@ -91,20 +98,20 @@ public class MainActivity extends Activity {
         Glide.with(MainActivity.this).load(imageUrl).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<String, GlideDrawable>() {
             @Override
             public boolean onException(Exception e, String s, Target<GlideDrawable> glideDrawableTarget, boolean b) {
-                tvMsg.setText("Error in loading captcha");
-                Log.d(TAG, "Error in loading captcha");
+                addLog("Error in loading captcha");
+                addLog("Error in loading captcha");
                 if(e != null){
-                    Log.d(TAG, "Exception is " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                    addLog("Exception is " + e.getClass().getSimpleName() + ": " + e.getMessage());
                 }
                 else{
-                    Log.d(TAG, "Exception is null");
+                    addLog("Exception is null");
                 }
                 return false;
             }
 
             @Override
             public boolean onResourceReady(GlideDrawable glideDrawable, String s, Target<GlideDrawable> glideDrawableTarget, boolean b, boolean b2) {
-                tvMsg.setText("Got Captcha, please enter the string. ");
+                addLog("Got Captcha, please enter the string. ");
                 return false;
             }
         }).into(captchaImageView);
@@ -113,7 +120,7 @@ public class MainActivity extends Activity {
 
 
     private void goLoginCaptcha() {
-        tvMsg.setText("Submitting captcha");
+        addLog("Submitting captcha");
 
         final String captchaInput = ((EditText) findViewById(R.id.et_captcha)).getText().toString();
         new AsyncTask<Void, Void, String>() {
@@ -133,9 +140,9 @@ public class MainActivity extends Activity {
             @Override
             protected void onPostExecute(String s) {
                 if ("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=e1s2".equals(s)) {
-                    tvMsg.setText("Apple ID Login successfully");
+                    addLog("Apple ID Login successfully");
                 } else {
-                    tvMsg.setText("Error: Apple ID Login failed");
+                    addLog("Error: Apple ID Login failed");
                 }
             }
         }.execute();
