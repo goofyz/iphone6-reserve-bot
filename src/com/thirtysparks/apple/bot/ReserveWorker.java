@@ -2,6 +2,8 @@ package com.thirtysparks.apple.bot;
 
 import android.util.Log;
 import com.squareup.okhttp.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -9,10 +11,13 @@ import java.net.CookiePolicy;
 import java.net.URLDecoder;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ReserveWorker {
     private static final String TAG = "AppleReserveWorker";
+    private static final String FLOW_EXECUTION_KEY = "_flowExecutionKey";
+    private static final String P_IE = "p_ie";
 
     OkHttpClient okHttpClient;
     Map<String, String> loginPageQueryString;
@@ -98,5 +103,42 @@ public class ReserveWorker {
 
         String returnResponse = response.request().url().toString();
         return returnResponse;
+    }
+
+    //get SMS code
+    public String retrieveSmsCodePage() throws Exception {
+        Request request = new Request.Builder()
+                .url("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=e1s2&ajaxSource=true&_eventId=context")
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        String body = response.body().string();
+
+        String code = null;
+
+        Map<String, String> smsPageResponds = new HashMap<String, String>();
+        String[] keys = new String[]{
+                P_IE, FLOW_EXECUTION_KEY
+        };
+        try {
+            JSONObject jsonObject = new JSONObject(body);
+            for (String key : keys) {
+                smsPageResponds.put(key, jsonObject.getString(key));
+            }
+
+            Iterator<String> iterator = jsonObject.keys();
+            while(iterator.hasNext()){
+                String key = iterator.next();
+                if(!(key.equals(P_IE) || key.equals("keyword") || key.equals(FLOW_EXECUTION_KEY) || key.equals("firstTime"))){
+                    code = jsonObject.getString(key);
+                    Log.d(TAG, "Captcha key is " + key);
+                }
+            }
+        } catch (JSONException e) {
+            Log.d(TAG, "Error in getting sms code: " + e.getMessage());
+        } catch (NullPointerException e) {
+            Log.d(TAG, "Error in getting sms code: " + e.getMessage());
+        }
+        return code;
     }
 }

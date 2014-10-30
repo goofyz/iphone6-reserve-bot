@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
 
 
     private void goGetCaptcha() {
-        tvMsg.setText("Getting captcha");
+        addLog("Getting captcha");
         ImageView captchaImageView = (ImageView)findViewById(R.id.iv_captcha);
         String imageUrl = "https://signin.apple.com/IDMSWebAuth/imageCaptcha/942#" + GregorianCalendar.getInstance().getTime().getTime();
         Glide.get(MainActivity.this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(reserveWorker.getOkHttpClient()));
@@ -141,8 +141,40 @@ public class MainActivity extends Activity {
             protected void onPostExecute(String s) {
                 if ("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=e1s2".equals(s)) {
                     addLog("Apple ID Login successfully");
+
+                    getSmsCode();
                 } else {
                     addLog("Error: Apple ID Login failed");
+                }
+            }
+        }.execute();
+    }
+
+    private void getSmsCode() {
+        addLog("Getting SMS request code");
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                String smsCode = null;
+                try {
+                    smsCode = reserveWorker.retrieveSmsCodePage();
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+                return smsCode;
+            }
+
+            @Override
+            protected void onPostExecute(String smsCode) {
+                if (smsCode != null) {
+                    addLog("SMS Request code returned");
+
+                    String[] splitString = smsCode.split(",");
+                    byte[] decodedString = Base64.decode(splitString[1], Base64.DEFAULT);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    ((ImageView) findViewById(R.id.iv_sms_code)).setImageBitmap(decodedByte);
                 }
             }
         }.execute();

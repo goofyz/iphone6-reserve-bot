@@ -26,5 +26,21 @@
             android:layout_height="wrap_content"
             android:text="Submit Captcha"
             />
+    <ImageView
+            android:id="@+id/iv_sms_code"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="#AAA"
+            />
+    <EditText
+            android:id="@+id/et_sms_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    <Button
+            android:id="@+id/btn_send_sms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send SMS"
+            />
 </LinearLayout>
 
