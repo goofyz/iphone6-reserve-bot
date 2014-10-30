@@ -1,10 +1,17 @@
 package com.thirtysparks.apple.bot;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.SmsManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +34,27 @@ public class MainActivity extends Activity {
     private static final String APPLE_ID = "ENTER_APPLIE_ID";
     private static final String PASSWORD = "ENTER_PASSWORD";
 
+    public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
+    public static final String KEY_SEND_SMS_RESULT = "com.thirtysparks.apple.bot.sms.send.result";
+
     ReserveWorker reserveWorker;
+
+    BroadcastReceiver localBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent != null){
+                if(intent.getAction().equals(BROADCAST_SEND_SMS)){
+                    boolean result = intent.getBooleanExtra(KEY_SEND_SMS_RESULT, false);
+                    if(result){
+                        addLog("Send SMS successfully");
+                    }
+                    else{
+                        addLog("Failed to send SMS");
+                    }
+                }
+            }
+        }
+    };
 
     TextView tvMsg;
 
@@ -35,6 +62,8 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acitivty_main);
+
+        registerReceiver();
 
         tvMsg = (TextView)findViewById(R.id.tv_msg);
 
@@ -47,11 +76,31 @@ public class MainActivity extends Activity {
             }
         });
 
+        findViewById(R.id.btn_send_sms).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendSms(((EditText)findViewById(R.id.et_sms_code)).getText().toString());
+            }
+        });
+
         goFrontPage();
     }
 
-    private void addLog(String s){
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(localBroadcastReceiver);
+    }
+
+    public void addLog(String s){
         tvMsg.setText(s + "\n" + tvMsg.getText());
+    }
+
+    private void registerReceiver(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BROADCAST_SEND_SMS);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, intentFilter);
     }
 
     private void goFrontPage(){
@@ -178,5 +227,12 @@ public class MainActivity extends Activity {
                 }
             }
         }.execute();
+    }
+
+    private void sendSms(String code) {
+        Intent intent = new Intent(BROADCAST_SEND_SMS);
+        PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        SmsManager.getDefault().sendTextMessage("64500366", null, code, sentIntent, null);
+        addLog("Sending SMS: " + code);
     }
 }
