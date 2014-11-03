@@ -35,7 +35,9 @@ public class MainActivity extends Activity {
     private static final String PASSWORD = "ENTER_PASSWORD";
 
     public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
+    public static final String BROADCAST_RECEIVE_SMS = "com.thirtysparks.apple.bot.sms.receive";
     public static final String KEY_SEND_SMS_RESULT = "com.thirtysparks.apple.bot.sms.send.result";
+    public static final String KEY_RECEIVE_SMS_RESULT = "com.thirtysparks.apple.bot.sms.receive.result";
 
     ReserveWorker reserveWorker;
 
