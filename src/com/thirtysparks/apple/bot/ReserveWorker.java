@@ -131,7 +131,7 @@ public class ReserveWorker {
                 String key = iterator.next();
                 if(!(key.equals(P_IE) || key.equals("keyword") || key.equals(FLOW_EXECUTION_KEY) || key.equals("firstTime"))){
                     code = jsonObject.getString(key);
-                    Log.d(TAG, "Captcha key is " + key);
+                    Log.d(TAG, "SMS key is " + key);
                 }
             }
         } catch (JSONException e) {
