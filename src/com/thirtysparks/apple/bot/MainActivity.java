@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final String APPLE_ID = "ENTER_APPLIE_ID";
     private static final String PASSWORD = "ENTER_PASSWORD";
+    private static final String PHONE_NUMBER = "ENTER_PHONE_NUMBER";
 
     public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
     public static final String BROADCAST_RECEIVE_SMS = "com.thirtysparks.apple.bot.sms.receive";
@@ -45,13 +46,21 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent != null){
-                if(intent.getAction().equals(BROADCAST_SEND_SMS)){
+                if(BROADCAST_SEND_SMS.equals(intent.getAction())){
                     boolean result = intent.getBooleanExtra(KEY_SEND_SMS_RESULT, false);
                     if(result){
                         addLog("Send SMS successfully");
                     }
                     else{
                         addLog("Failed to send SMS");
+                    }
+                }
+                else if(BROADCAST_RECEIVE_SMS.equals(intent.getAction())){
+                    String smsCode = intent.getStringExtra(KEY_RECEIVE_SMS_RESULT);
+                    if(smsCode != null){
+                        addLog("got reservation code: " + smsCode);
+                        // submit reservation code
+                        submitSmsReservationCode(smsCode);
                     }
                 }
             }
@@ -236,5 +245,26 @@ public class MainActivity extends Activity {
         PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         SmsManager.getDefault().sendTextMessage("64500366", null, code, sentIntent, null);
         addLog("Sending SMS: " + code);
+    }
+
+    private void submitSmsReservationCode(final String smsReservationCode){
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params)  {
+                String result = null;
+                try{
+                    result = reserveWorker.submitSmsCode(PHONE_NUMBER, smsReservationCode);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+                return result;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                //check submission result
+            }
+        }.execute();
     }
 }

@@ -116,14 +116,13 @@ public class ReserveWorker {
 
         String code = null;
 
-        Map<String, String> smsPageResponds = new HashMap<String, String>();
         String[] keys = new String[]{
                 P_IE, FLOW_EXECUTION_KEY
         };
         try {
             JSONObject jsonObject = new JSONObject(body);
             for (String key : keys) {
-                smsPageResponds.put(key, jsonObject.getString(key));
+                loginPageQueryString.put(key, jsonObject.getString(key));
             }
 
             Iterator<String> iterator = jsonObject.keys();
@@ -140,5 +139,32 @@ public class ReserveWorker {
             Log.d(TAG, "Error in getting sms code: " + e.getMessage());
         }
         return code;
+    }
+
+    //submit SMS code
+    public String submitSmsCode(String phoneNum, String smsRespondCode) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("phoneNumber", phoneNum);
+        params.put("reservationCode", smsRespondCode);
+        params.put("p_ie", loginPageQueryString.get(P_IE));
+        params.put("_flowExecutionKey", loginPageQueryString.get(FLOW_EXECUTION_KEY));
+        params.put("_eventId", "next");
+
+        FormEncodingBuilder builder = new FormEncodingBuilder();
+        for (String key : params.keySet()) {
+            builder.add(key, params.get(key));
+        }
+        RequestBody formBody = builder.build();
+        Request request = new Request.Builder()
+                .url("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=" + loginPageQueryString.get(FLOW_EXECUTION_KEY))
+                .post(formBody)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        String url = response.request().url().toString();
+
+        String returnResponse = url;
+
+        return returnResponse;
     }
 }
