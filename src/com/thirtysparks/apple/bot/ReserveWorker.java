@@ -107,12 +107,8 @@ public class ReserveWorker {
 
     //get SMS code
     public String retrieveSmsCodePage() throws Exception {
-        Request request = new Request.Builder()
-                .url("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=e1s2&ajaxSource=true&_eventId=context")
-                .build();
-        Response response = okHttpClient.newCall(request).execute();
-
-        String body = response.body().string();
+        loginPageQueryString.put(FLOW_EXECUTION_KEY, "e1s2");
+        String body = getCommonAjax();
 
         String code = null;
 
@@ -166,5 +162,16 @@ public class ReserveWorker {
         String returnResponse = url;
 
         return returnResponse;
+    }
+
+    public String getCommonAjax() throws Exception {
+        String url = String.format("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=%1$s&ajaxSource=true&_eventId=context", loginPageQueryString.get(FLOW_EXECUTION_KEY));
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        String body = response.body().string();
+        return body;
     }
 }
