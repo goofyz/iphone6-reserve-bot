@@ -34,11 +34,14 @@ public class ReceiveSmsBroadcastReceiver extends BroadcastReceiver {
                     allMessageContent[i] = smsMessage[i].getMessageBody();
                     for(String message:allMessageContent){
                         if(message != null) {
-                            String smsPattern = "你的註冊代碼為 (Your registration code is) ";
-                            int idx = message.indexOf(smsPattern);
-                            if(idx > -1){
-                                String smsCode = message.substring(idx + smsPattern.length());
-                                Log.d(TAG, "Matched SMS code: " + smsCode);
+                            String smsPattern = "你的註冊代碼為 \\(Your registration code is\\) ([a-zA-Z0-9]+)";
+                            Pattern pattern = Pattern.compile(smsPattern);
+                            Matcher matcher = pattern.matcher(message);
+                            if (matcher.find()) {
+                                String smsRespondCode = matcher.group(1);
+                                Log.d(TAG, "Matched SMS code: " + smsRespondCode);
+
+                                broadcastMessageToActivity(context, smsRespondCode);
                             }
                         }
                     }
