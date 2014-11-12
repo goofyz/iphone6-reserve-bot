@@ -25,6 +25,9 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.GregorianCalendar;
@@ -264,6 +267,45 @@ public class MainActivity extends Activity {
             @Override
             protected void onPostExecute(String s) {
                 //check submission result
+                getSubmitResult();
+            }
+        }.execute();
+    }
+
+    private void getSubmitResult(){
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params)  {
+                String result = null;
+                try{
+                    result = reserveWorker.getCommonAjax();
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+                return result;
+            }
+
+            @Override
+            protected void onPostExecute(String jsonStr) {
+                //parse the JSON
+
+                try {
+                    JSONObject jsonObject = new JSONObject(jsonStr);
+                    JSONArray errors = jsonObject.getJSONArray("errors");
+                    if(errors.length() > 0){
+                        for(int i=0; i < errors.length(); i++){
+                            addLog("Errors: " + errors.getString(i) );
+                        }
+                    }
+                    else{
+                        //we have reached page 3!
+                    }
+                } catch (JSONException jsonException) {
+                    //NO ERROR, should be proceed
+                } catch (NullPointerException e) {
+                    addLog("Null pointer.  Please start again");
+                }
             }
         }.execute();
     }
