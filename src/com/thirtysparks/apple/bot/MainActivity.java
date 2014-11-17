@@ -30,13 +30,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final String APPLE_ID = "ENTER_APPLIE_ID";
     private static final String PASSWORD = "ENTER_PASSWORD";
     private static final String PHONE_NUMBER = "ENTER_PHONE_NUMBER";
+
+    private static final String IFC_STORE_NUM = "R428";
 
     public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
     public static final String BROADCAST_RECEIVE_SMS = "com.thirtysparks.apple.bot.sms.receive";
@@ -301,6 +303,43 @@ public class MainActivity extends Activity {
                     else{
                         //we have reached page 3!
                     }
+                } catch (JSONException jsonException) {
+                    //NO ERROR, should be proceed
+                } catch (NullPointerException e) {
+                    addLog("Null pointer.  Please start again");
+                }
+            }
+        }.execute();
+    }
+
+    private void getTimeSlot(){
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params)  {
+                String result = null;
+                try{
+                    result = reserveWorker.getTimeSlots(IFC_STORE_NUM);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+                return result;
+            }
+
+            @Override
+            protected void onPostExecute(String jsonStr) {
+                List<String[]> timeSlotList = new ArrayList<String[]>();
+                try {
+                    JSONObject json = new JSONObject(jsonStr);
+                    JSONArray timeSlotsJsonArray= json.getJSONArray("timeslots");
+                    for(int i=0; i < timeSlotsJsonArray.length(); i++){
+                        JSONObject timeSlotJson = timeSlotsJsonArray.getJSONObject(i);
+                        String timeSlotId = timeSlotJson.getString("timeSlotId");
+                        String timeSlotTime = timeSlotJson.getString("formattedTime");
+                        timeSlotList.add(new String[]{timeSlotId, timeSlotTime});
+                    }
+
+                    //we have the time slot now, check the stock;
                 } catch (JSONException jsonException) {
                     //NO ERROR, should be proceed
                 } catch (NullPointerException e) {

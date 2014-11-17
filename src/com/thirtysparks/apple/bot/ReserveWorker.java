@@ -174,4 +174,26 @@ public class ReserveWorker {
         String body = response.body().string();
         return body;
     }
+
+    public String getTimeSlots(String storeNumber) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("ajaxSource", "true");
+        params.put("_eventId", "timeslots");
+        params.put("storeNumber", storeNumber);
+        params.put("p_ie", loginPageQueryString.get(P_IE));
+
+        FormEncodingBuilder builder = new FormEncodingBuilder();
+        for (String key : params.keySet()) {
+            builder.add(key, params.get(key));
+        }
+        RequestBody formBody = builder.build();
+        Request request = new Request.Builder()
+                .url("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=" + loginPageQueryString.get(FLOW_EXECUTION_KEY))
+                .post(formBody)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        String body = response.body().string();
+        return body;
+    }
 }
