@@ -221,4 +221,43 @@ public class ReserveWorker {
         String body = response.body().string();
         return body;
     }
+
+
+    public String submitOrder(String color, String appleId, String firstName, String lastName, String govId, String govIdType, String productName, String partNumber, String storeNumber, String timeSlotId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("_eventId", "next");
+        params.put("_flowExecutionKey", loginPageQueryString.get(FLOW_EXECUTION_KEY));
+        params.put("color", color);
+        params.put("email", appleId);
+        params.put("firstName", firstName);
+        params.put("govtId", govId);
+        params.put("lastName", lastName);
+        params.put("p_ie", loginPageQueryString.get(P_IE));
+        params.put("product", productName);
+        params.put("selectedContractType", "UNLOCKED");
+        params.put("selectedGovtIdType", govIdType);
+        params.put("selectedPartNumber", partNumber);
+        params.put("selectedQuantity", "2");
+        params.put("selectedStoreNumber", storeNumber);
+        params.put("selectedTimeSlotId", timeSlotId);
+
+        FormEncodingBuilder builder = new FormEncodingBuilder();
+        for (String key : params.keySet()) {
+            builder.add(key, params.get(key));
+        }
+        RequestBody formBody = builder.build();
+        Request request = new Request.Builder()
+                .url("https://reserve-hk.apple.com/HK/en_HK/reserve/iPhone?execution=" + loginPageQueryString.get(FLOW_EXECUTION_KEY))
+                .post(formBody)
+                .tag(TAG)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        String url = response.request().url().toString();
+        String body = response.body().string();
+
+        String info = getCommonAjax();
+
+        return info;
+    }
 }

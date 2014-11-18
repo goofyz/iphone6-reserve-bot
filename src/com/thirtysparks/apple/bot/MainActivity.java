@@ -37,9 +37,14 @@ public class MainActivity extends Activity {
     private static final String APPLE_ID = "ENTER_APPLIE_ID";
     private static final String PASSWORD = "ENTER_PASSWORD";
     private static final String PHONE_NUMBER = "ENTER_PHONE_NUMBER";
+    private static final String GOV_ID = "ENTER_GOV_ID";
+    private static final String GOV_ID_TYPE = "idHongkong";
 
     private static final String STORE_IFC = "R428";
-    private static final String MODEL_IPHONE6_PLUS = "MG4E2ZP/A,MG492ZP/A,MG4J2ZP/A";
+    private static final String COLOR_GOLD = "Gold";
+    private static final String MODEL_IPHONE6_PLUS_GROUP = "MG4E2ZP/A,MG492ZP/A,MG4J2ZP/A";
+    public static final String MODEL_IPHONE6_PLUS_16GB = "MGAA2ZP/A";
+    public static final String MODEL_IPHONE6_PLUS_NAME = "iPhone 6 Plus";
 
     public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
     public static final String BROADCAST_RECEIVE_SMS = "com.thirtysparks.apple.bot.sms.receive";
@@ -47,6 +52,7 @@ public class MainActivity extends Activity {
     public static final String KEY_RECEIVE_SMS_RESULT = "com.thirtysparks.apple.bot.sms.receive.result";
 
     ReserveWorker reserveWorker;
+    String firstName, lastName;
 
     BroadcastReceiver localBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -318,7 +324,7 @@ public class MainActivity extends Activity {
             @Override
             protected Void doInBackground(Void... params)  {
                 List<String[]> timeSlotList = getTimeSlot(STORE_IFC);
-                Map<String, Boolean> stockList = getStock(STORE_IFC, MODEL_IPHONE6_PLUS);
+                Map<String, Boolean> stockList = getStock(STORE_IFC, MODEL_IPHONE6_PLUS_GROUP);
 
                 if(timeSlotList != null && stockList != null){
                     //do ordering
@@ -388,5 +394,16 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         return list;
+    }
+
+    private String order(String storeNumber, String timeSlotId){
+        String jsonStr = null;
+        try {
+            jsonStr = reserveWorker.submitOrder(COLOR_GOLD, APPLE_ID, firstName, lastName, GOV_ID, GOV_ID_TYPE, MODEL_IPHONE6_PLUS_NAME, MODEL_IPHONE6_PLUS_GROUP, storeNumber, timeSlotId);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return jsonStr;
     }
 }
