@@ -309,6 +309,9 @@ public class MainActivity extends Activity {
                     }
                     else{
                         //we have reached page 3!
+                        firstName = jsonObject.getString("firstName");
+                        lastName = jsonObject.getString("lastName");
+                        doFinalStep();
                     }
                 } catch (JSONException jsonException) {
                     //NO ERROR, should be proceed
