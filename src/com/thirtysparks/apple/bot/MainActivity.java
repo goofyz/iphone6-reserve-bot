@@ -314,7 +314,7 @@ public class MainActivity extends Activity {
                         doFinalStep();
                     }
                 } catch (JSONException jsonException) {
-                    //NO ERROR, should be proceed
+                    jsonException.printStackTrace();
                 } catch (NullPointerException e) {
                     addLog("Null pointer.  Please start again");
                 }
@@ -345,10 +345,12 @@ public class MainActivity extends Activity {
                                     }
                                     else{
                                         //should be order success
+                                        msg = jsonStr;
                                     }
+                                    return msg;
                                 }
                                 catch (JSONException jsonException) {
-                                    //NO ERROR, should be proceed
+                                    jsonException.printStackTrace();
                                 } catch (NullPointerException e) {
                                     addLog("Null pointer.  Please start again");
                                 }
@@ -357,11 +359,17 @@ public class MainActivity extends Activity {
                         }
                     }
                 }
-                return msg;
+                return null;
             }
 
             @Override
             protected void onPostExecute(String msg) {
+                if(msg != null) {
+                    addLog(msg);
+                }
+                else{
+                    addLog("order failed. Msg is null.");
+                }
             }
         }.execute();
     }
@@ -384,7 +392,7 @@ public class MainActivity extends Activity {
 
                 //we have the time slot now, check the stock;
             } catch (JSONException jsonException) {
-                //NO ERROR, should be proceed
+                jsonException.printStackTrace();
             } catch (NullPointerException e) {
                 addLog("Null pointer.  Please start again");
             }
@@ -413,7 +421,7 @@ public class MainActivity extends Activity {
                 }
                 //we have the time slot now, check the stock;
             } catch (JSONException jsonException) {
-                //NO ERROR, should be proceed
+                jsonException.printStackTrace();
             } catch (NullPointerException e) {
                 addLog("Null pointer.  Please start again");
             }
