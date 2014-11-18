@@ -38,7 +38,8 @@ public class MainActivity extends Activity {
     private static final String PASSWORD = "ENTER_PASSWORD";
     private static final String PHONE_NUMBER = "ENTER_PHONE_NUMBER";
 
-    private static final String IFC_STORE_NUM = "R428";
+    private static final String STORE_IFC = "R428";
+    private static final String MODEL_IPHONE6_PLUS = "MG4E2ZP/A,MG492ZP/A,MG4J2ZP/A";
 
     public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
     public static final String BROADCAST_RECEIVE_SMS = "com.thirtysparks.apple.bot.sms.receive";
@@ -312,40 +313,80 @@ public class MainActivity extends Activity {
         }.execute();
     }
 
-    private void getTimeSlot(){
-        new AsyncTask<Void, Void, String>() {
+    private void doFinalStep(){
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            protected String doInBackground(Void... params)  {
-                String result = null;
-                try{
-                    result = reserveWorker.getTimeSlots(IFC_STORE_NUM);
+            protected Void doInBackground(Void... params)  {
+                List<String[]> timeSlotList = getTimeSlot(STORE_IFC);
+                Map<String, Boolean> stockList = getStock(STORE_IFC, MODEL_IPHONE6_PLUS);
+
+                if(timeSlotList != null && stockList != null){
+                    //do ordering
                 }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-                return result;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(String jsonStr) {
-                List<String[]> timeSlotList = new ArrayList<String[]>();
-                try {
-                    JSONObject json = new JSONObject(jsonStr);
-                    JSONArray timeSlotsJsonArray= json.getJSONArray("timeslots");
-                    for(int i=0; i < timeSlotsJsonArray.length(); i++){
-                        JSONObject timeSlotJson = timeSlotsJsonArray.getJSONObject(i);
-                        String timeSlotId = timeSlotJson.getString("timeSlotId");
-                        String timeSlotTime = timeSlotJson.getString("formattedTime");
-                        timeSlotList.add(new String[]{timeSlotId, timeSlotTime});
-                    }
-
-                    //we have the time slot now, check the stock;
-                } catch (JSONException jsonException) {
-                    //NO ERROR, should be proceed
-                } catch (NullPointerException e) {
-                    addLog("Null pointer.  Please start again");
-                }
+            protected void onPostExecute(Void param) {
             }
         }.execute();
+    }
+
+    private List<String[]> getTimeSlot(String storeNumber){
+        List<String[]> timeSlotList = null;
+        try{
+            String jsonStr = reserveWorker.getTimeSlots(storeNumber);
+
+            timeSlotList = new ArrayList<String[]>();
+            try {
+                JSONObject json = new JSONObject(jsonStr);
+                JSONArray timeSlotsJsonArray= json.getJSONArray("timeslots");
+                for(int i=0; i < timeSlotsJsonArray.length(); i++){
+                    JSONObject timeSlotJson = timeSlotsJsonArray.getJSONObject(i);
+                    String timeSlotId = timeSlotJson.getString("timeSlotId");
+                    String timeSlotTime = timeSlotJson.getString("formattedTime");
+                    timeSlotList.add(new String[]{timeSlotId, timeSlotTime});
+                }
+
+                //we have the time slot now, check the stock;
+            } catch (JSONException jsonException) {
+                //NO ERROR, should be proceed
+            } catch (NullPointerException e) {
+                addLog("Null pointer.  Please start again");
+            }
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return timeSlotList;
+    }
+
+    private Map<String, Boolean> getStock(String storeNumber, String groupPartNumber){
+        Map<String, Boolean> list = null;
+        try{
+            String jsonStr = reserveWorker.getAvailability(storeNumber, groupPartNumber);
+            list = new HashMap<String, Boolean>();
+            try {
+                JSONObject json = new JSONObject(jsonStr);
+                JSONArray timeSlotsJsonArray= json.getJSONArray("inventories");
+                for(int i=0; i < timeSlotsJsonArray.length(); i++){
+                    JSONObject timeSlotJson = timeSlotsJsonArray.getJSONObject(i);
+                    String partNumber = timeSlotJson.getString("partNumber");
+                    boolean available = timeSlotJson.getBoolean("available");
+                    list.put(partNumber, available);
+                }
+                //we have the time slot now, check the stock;
+            } catch (JSONException jsonException) {
+                //NO ERROR, should be proceed
+            } catch (NullPointerException e) {
+                addLog("Null pointer.  Please start again");
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return list;
     }
 }
