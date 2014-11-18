@@ -323,20 +323,45 @@ public class MainActivity extends Activity {
     }
 
     private void doFinalStep(){
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Void, String>() {
             @Override
-            protected Void doInBackground(Void... params)  {
-                List<String[]> timeSlotList = getTimeSlot(STORE_IFC);
-                Map<String, Boolean> stockList = getStock(STORE_IFC, MODEL_IPHONE6_PLUS_GROUP);
+            protected String doInBackground(Void... params)  {
+                String msg = null;
+                String storeNum = STORE_IFC;
+                List<String[]> timeSlotList = getTimeSlot(storeNum);
+                Map<String, Boolean> stockList = getStock(storeNum, MODEL_IPHONE6_PLUS_GROUP);
 
                 if(timeSlotList != null && stockList != null){
                     //do ordering
+                    for(String[] timeSlot:timeSlotList){
+                        for(String partNum:stockList.keySet()){
+                            if(stockList.get(partNum)){
+                                String jsonStr = order(storeNum, timeSlot[0]);
+                                try{
+                                    JSONObject jsonObject = new JSONObject(jsonStr);
+                                    JSONArray errors = jsonObject.getJSONArray("errors");
+                                    if(errors.length() > 0){
+                                        msg = errors.join(", ");
+                                    }
+                                    else{
+                                        //should be order success
+                                    }
+                                }
+                                catch (JSONException jsonException) {
+                                    //NO ERROR, should be proceed
+                                } catch (NullPointerException e) {
+                                    addLog("Null pointer.  Please start again");
+                                }
+
+                            }
+                        }
+                    }
                 }
-                return null;
+                return msg;
             }
 
             @Override
-            protected void onPostExecute(Void param) {
+            protected void onPostExecute(String msg) {
             }
         }.execute();
     }
