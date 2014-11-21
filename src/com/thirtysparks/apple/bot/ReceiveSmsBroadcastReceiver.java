@@ -12,9 +12,6 @@ import android.util.Log;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by Kelly Lau on 30/10/2014.
- */
 public class ReceiveSmsBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "ReceiveSmsBroadcastReceiver";
     @Override

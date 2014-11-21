@@ -7,9 +7,6 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-/**
- * Created by Ryan on 10/30/2014.
- */
 public class SendSmsBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "SendSmsBroadcastReceiver";
 
