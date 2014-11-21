@@ -160,6 +160,7 @@ public class ReserveWorker {
         String url = response.request().url().toString();
 
         String returnResponse = url;
+        updateFlowExecutionKey(url);
 
         return returnResponse;
     }
@@ -219,6 +220,7 @@ public class ReserveWorker {
         Response response = okHttpClient.newCall(request).execute();
 
         String body = response.body().string();
+        updateFlowExecutionKey(response.request().url().toString());
         return body;
     }
 
@@ -254,10 +256,21 @@ public class ReserveWorker {
         Response response = okHttpClient.newCall(request).execute();
 
         String url = response.request().url().toString();
-        String body = response.body().string();
+
+        updateFlowExecutionKey(url);
 
         String info = getCommonAjax();
 
+
         return info;
+    }
+
+    private void updateFlowExecutionKey(String url) {
+
+        Map<String, String> queryString = extractQueryString(url);
+        String execution = queryString.get("execution");
+        if (execution != null) {
+            loginPageQueryString.put(FLOW_EXECUTION_KEY, execution);
+        }
     }
 }

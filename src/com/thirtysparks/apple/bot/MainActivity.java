@@ -38,12 +38,11 @@ public class MainActivity extends Activity {
     private static final String PASSWORD = "ENTER_PASSWORD";
     private static final String PHONE_NUMBER = "ENTER_PHONE_NUMBER";
     private static final String GOV_ID = "ENTER_GOV_ID";
-    private static final String GOV_ID_TYPE = "idHongkong";
+    private static final String GOV_ID_TYPE = "idHongkongCard";
 
     private static final String STORE_IFC = "R428";
     private static final String COLOR_GOLD = "Gold";
     private static final String MODEL_IPHONE6_PLUS_GROUP = "MG4E2ZP/A,MG492ZP/A,MG4J2ZP/A";
-    public static final String MODEL_IPHONE6_PLUS_16GB = "MGAA2ZP/A";
     public static final String MODEL_IPHONE6_PLUS_NAME = "iPhone 6 Plus";
 
     public static final String BROADCAST_SEND_SMS = "com.thirtysparks.apple.bot.sms.send";
@@ -122,6 +121,7 @@ public class MainActivity extends Activity {
     private void registerReceiver(){
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BROADCAST_SEND_SMS);
+        intentFilter.addAction(BROADCAST_RECEIVE_SMS);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(localBroadcastReceiver, intentFilter);
     }
@@ -171,12 +171,12 @@ public class MainActivity extends Activity {
             @Override
             public boolean onException(Exception e, String s, Target<GlideDrawable> glideDrawableTarget, boolean b) {
                 addLog("Error in loading captcha");
-                addLog("Error in loading captcha");
                 if(e != null){
                     addLog("Exception is " + e.getClass().getSimpleName() + ": " + e.getMessage());
                 }
                 else{
                     addLog("Exception is null");
+                    goFrontPage();
                 }
                 return false;
             }
@@ -260,6 +260,7 @@ public class MainActivity extends Activity {
     }
 
     private void submitSmsReservationCode(final String smsReservationCode){
+        addLog("Submitting SMS reservation code");
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params)  {
@@ -282,6 +283,7 @@ public class MainActivity extends Activity {
     }
 
     private void getSubmitResult(){
+        addLog("Getting submission result");
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params)  {
@@ -297,20 +299,21 @@ public class MainActivity extends Activity {
 
             @Override
             protected void onPostExecute(String jsonStr) {
-                //parse the JSON
-
                 try {
                     JSONObject jsonObject = new JSONObject(jsonStr);
-                    JSONArray errors = jsonObject.getJSONArray("errors");
-                    if(errors.length() > 0){
-                        for(int i=0; i < errors.length(); i++){
-                            addLog("Errors: " + errors.getString(i) );
+                    if(jsonStr.indexOf("errors") > 0) {
+                        JSONArray errors = jsonObject.getJSONArray("errors");
+                        if (errors.length() > 0) {
+                            for (int i = 0; i < errors.length(); i++) {
+                                addLog("Errors: " + errors.getString(i));
+                            }
                         }
                     }
                     else{
                         //we have reached page 3!
                         firstName = jsonObject.getString("firstName");
                         lastName = jsonObject.getString("lastName");
+                        addLog("Logged in: first Name is " + firstName + ", last Name is " + lastName);
                         doFinalStep();
                     }
                 } catch (JSONException jsonException) {
@@ -323,6 +326,7 @@ public class MainActivity extends Activity {
     }
 
     private void doFinalStep(){
+        addLog("Do final step");
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params)  {
@@ -336,12 +340,14 @@ public class MainActivity extends Activity {
                     for(String[] timeSlot:timeSlotList){
                         for(String partNum:stockList.keySet()){
                             if(stockList.get(partNum)){
-                                String jsonStr = order(storeNum, timeSlot[0]);
+                                String jsonStr = order(storeNum, partNum, timeSlot[0]);
                                 try{
                                     JSONObject jsonObject = new JSONObject(jsonStr);
-                                    JSONArray errors = jsonObject.getJSONArray("errors");
-                                    if(errors.length() > 0){
-                                        msg = errors.join(", ");
+                                    if(jsonStr.indexOf("errors") > 0) {
+                                        JSONArray errors = jsonObject.getJSONArray("errors");
+                                        if (errors.length() > 0) {
+                                            msg = errors.join(", ");
+                                        }
                                     }
                                     else{
                                         //should be order success
@@ -359,7 +365,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 }
-                return null;
+                return msg;
             }
 
             @Override
@@ -388,9 +394,9 @@ public class MainActivity extends Activity {
                     String timeSlotId = timeSlotJson.getString("timeSlotId");
                     String timeSlotTime = timeSlotJson.getString("formattedTime");
                     timeSlotList.add(new String[]{timeSlotId, timeSlotTime});
-                }
 
-                //we have the time slot now, check the stock;
+                    Log.d(TAG, "time is " + timeSlotTime + ", " + timeSlotId);
+                }
             } catch (JSONException jsonException) {
                 jsonException.printStackTrace();
             } catch (NullPointerException e) {
@@ -418,8 +424,9 @@ public class MainActivity extends Activity {
                     String partNumber = timeSlotJson.getString("partNumber");
                     boolean available = timeSlotJson.getBoolean("available");
                     list.put(partNumber, available);
+
+                    Log.d(TAG, "Stocks: " + partNumber + ": " + available);
                 }
-                //we have the time slot now, check the stock;
             } catch (JSONException jsonException) {
                 jsonException.printStackTrace();
             } catch (NullPointerException e) {
@@ -432,10 +439,11 @@ public class MainActivity extends Activity {
         return list;
     }
 
-    private String order(String storeNumber, String timeSlotId){
+    private String order(String storeNumber, String partNum, String timeSlotId){
         String jsonStr = null;
         try {
-            jsonStr = reserveWorker.submitOrder(COLOR_GOLD, APPLE_ID, firstName, lastName, GOV_ID, GOV_ID_TYPE, MODEL_IPHONE6_PLUS_NAME, MODEL_IPHONE6_PLUS_GROUP, storeNumber, timeSlotId);
+            Log.d(TAG, "Ordering " + storeNumber + ": " + timeSlotId);
+            jsonStr = reserveWorker.submitOrder(COLOR_GOLD, APPLE_ID, firstName, lastName, GOV_ID, GOV_ID_TYPE, MODEL_IPHONE6_PLUS_NAME, partNum, storeNumber, timeSlotId);
         }
         catch (Exception e){
             e.printStackTrace();
