@@ -1,7 +1,7 @@
-iphone6-reserve-bot
+iPhone 6 Reserve Bot
 ===================
 An Android app to automatically submit request to reserve iPhone 6 in Apple Store Hong Kong.
-Detailed tutorial is available at [my blog](http://blog.30sparks.com/iphone-reserve-bot-tutorial/?utm_source=github&utm_medium=web&utm_campaign=ibot) (Chinese).
+Detailed tutorial is available at [our blog](http://blog.30sparks.com/iphone-reserve-bot-tutorial/?utm_source=github&utm_medium=web&utm_campaign=ibot) (Chinese).
 
 The app will:
 
@@ -12,11 +12,15 @@ The app will:
 
 Run Instruction
 ---------------
-To run, please download the following librarys to `libs/` folder:
+To run, please download the following libraries to `libs/` folder:
 
 * [Okhttp](http://square.github.io/okhttp)
 * [Glide](https://github.com/bumptech/glide), together with okHttp integration library
 * [Android Support Library v4](http://developer.android.com/tools/support-library/index.html) (required by `Glide`)
+
+iReserver on Google Play
+------------------------
+An advanced version is available on [Google Play](https://play.google.com/store/apps/details?id=com.thirtysparks.ireserver?utm_source=github&utm_medium=web&utm_campaign=ibot).
 
 License
 -------
