@@ -20,11 +20,11 @@ To run, please download the following libraries to `libs/` folder:
 
 iReserver on Google Play
 ------------------------
-An advanced and workable version is available on [Google Play Store](https://play.google.com/store/apps/details?id=com.thirtysparks.ireserver?utm_source=github&utm_medium=web&utm_campaign=ibot).
+An advanced and workable version is available on [Google Play Store](https://play.google.com/store/apps/details?id=com.thirtysparks.ireserver&referrer=utm_source%3Dgithub%26utm_medium%3Dweb%26utm_campaign%3Dibot).
 
 ![Google Play Image](http://blog.30sparks.com/content/images/2014/11/ireserver_cover.jpg)
 
- [iReserver - Google Play Store](https://play.google.com/store/apps/details?id=com.thirtysparks.ireserver?utm_source=github&utm_medium=web&utm_campaign=ibot).
+ [iReserver - Google Play Store](https://play.google.com/store/apps/details?id=com.thirtysparks.ireserver&referrer=utm_source%3Dgithub%26utm_medium%3Dweb%26utm_campaign%3Dibot).
 
 License
 -------
